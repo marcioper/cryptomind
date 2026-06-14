@@ -1,6 +1,8 @@
 package com.cryptomind.portfolioservice.service;
 
 import com.binance.connector.client.impl.SpotClientImpl;
+import com.cryptomind.portfolioservice.dto.BinanceAccountDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.stereotype.Service;
 import java.util.LinkedHashMap;
@@ -27,6 +29,16 @@ public class BinanceService {
         return client.createTrade().account(parameters);
     }
 
+    public BinanceAccountDTO getAccountBalancesTyped() {
+        String raw = client.createTrade().account(new LinkedHashMap<>());
+        try {
+            ObjectMapper om = new ObjectMapper();
+            return om.readValue(raw, BinanceAccountDTO.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse Binance account", e);
+        }
+    }
+
     // Create an order (signed POST request)
     public String createOrder(String symbol, String side, String type, String quantity) {
         Map<String, Object> params = new LinkedHashMap<>();
@@ -36,5 +48,18 @@ public class BinanceService {
         params.put("quantity", quantity);
 
         return client.createTrade().newOrder(params);
+    }
+
+    public double getSymbolPrice(String symbol) {
+        Map<String, Object> params = new LinkedHashMap<>();
+        params.put("symbol", symbol);
+        String raw = client.createMarket().ticker24H(params);
+        try {
+            ObjectMapper om = new ObjectMapper();
+            var node = om.readTree(raw);
+            return node.get("lastPrice").asDouble();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse price for " + symbol, e);
+        }
     }
 }

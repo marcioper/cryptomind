@@ -1,11 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import api from "@/app/api";
 
-export const useBalances = () =>
-  useQuery<any>({
+export function useBalances<T = unknown>(): UseQueryResult<T> {
+  return useQuery<T>({
     queryKey: ["balances"],
     queryFn: async () => {
-      const { data } = await api.get("/balances");
-      return data;
+      const { data } = await api.get("/balances"); // shape: { balances: [...] }
+      return data as T;
     },
   });
+}

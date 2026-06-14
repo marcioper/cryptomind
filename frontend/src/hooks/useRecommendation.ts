@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import api from "@/app/api";
 import { Recommendation } from "../types";
 
-export const useRecommendation = (userId: number) =>
+export const useRecommendation = (portfolioId: number | undefined) =>
   useQuery<Recommendation>({
-    queryKey: ["recommendation", userId],
+    queryKey: ["recommendation", portfolioId],
     queryFn: async () => {
-      const { data } = await api.get(`/recommendation/${userId}`);
+      const { data } = await api.get(`/${portfolioId}/recommendation`);
       return data;
     },
-    enabled: !!userId,
+    enabled: !!portfolioId,
   });

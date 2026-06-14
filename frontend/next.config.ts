@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'standalone', // <-- important: generates a minimal server bundle
 };
 
 export default nextConfig;
